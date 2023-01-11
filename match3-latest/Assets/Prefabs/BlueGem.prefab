@@ -112,4 +112,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gemSo: {fileID: 11400000, guid: c0106c1fd477f744e88380e677d99ad0, type: 2}
-  gemType: 1

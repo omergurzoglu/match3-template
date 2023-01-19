@@ -1,6 +1,9 @@
+
+using System;
 using Managers;
 using ScriptableObjects;
 using UnityEngine;
+
 
 namespace Objects
 {
@@ -8,31 +11,24 @@ namespace Objects
     {
         [SerializeField] private GemSo gemSo;
         public GemSo.GemType gemType;
-        public Transform thisGemsTransform;
-
+        
+        public static event Action<GameObject> GemSelected;
         private void Awake()
         {
-            thisGemsTransform = transform;
             gemType = gemSo.gemColor;
         }
-
         private void OnMouseDown()
         {
-            if (GameManager.Instance.gemsAreSwapping)
+            OnGemSelected(gameObject);
+        }
+        
+        private static void OnGemSelected(GameObject gem)
+        {
+            if (!SwapManager.IsSwapping)
             {
-                return;
+                GemSelected?.Invoke(gem);
             }
-            if (!GameManager.Instance.SelectedGems.SecondGemSelected)
-            {
-                GameManager.Instance.SelectedGems.Gem1 = this;
-                GameManager.Instance.SelectedGems.SecondGemSelected = true;
-            }
-            else
-            {
-                GameManager.Instance.SelectedGems.Gem2 = this;
-                GameManager.Instance.onGemSelected.Invoke(GameManager.Instance.SelectedGems);
-                GameManager.Instance.SelectedGems.SecondGemSelected = false;
-            }
+           
         }
     }
 }

@@ -1,4 +1,5 @@
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using DG.Tweening;
@@ -16,6 +17,7 @@ namespace Managers
         private Camera _camera;
         public GameObject[,] _gridElements;
         public static bool GridIsUpdating=false;
+        public static event Action GemDestroyed;
 
         private void Awake()
         {
@@ -89,62 +91,60 @@ namespace Managers
         {
             GridIsUpdating = true;
             yield return new WaitForSeconds(0.4f);
-            DetectMatchesAndDestroy();
+            StartCoroutine(DetectMatchesAndDestroy());
             yield return new WaitForSeconds(0.4f);
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    if (_gridElements[x, y] == null)
-                    {
-                        FillEmptySlots(x,y);
-                        
-                    }
-                }
-            }
-            yield return new WaitForSeconds(0.4f);
-            for (int x = 0; x < width; x++)
-            {
-                for (int y = 0; y < height; y++)
-                {
-                    if (_gridElements[x, y] == null)
-                    {
-                        FillNewEmptySlots(x,y);
-                        
-                    }
-                }
-            }
-            
-            
+
             GridIsUpdating = false;
         }
-        private void FillEmptySlots(int x , int y)
+        private void FillEmptySpaces()
         {
-            for (int i = y; i < height; i++)
+            for (int x = 0; x < width; x++)
             {
-                if (_gridElements[x, i + 1] != null)
+                for (int y = 0; y < height; y++)
                 {
-                    _gridElements[x, i] = _gridElements[x, i + 1];
-                    _gridElements[x, i].transform.DOMoveY(i, 0.2f).SetEase(Ease.OutBounce);
+                    if (_gridElements[x, y] == null)
+                    {
+                        int currentY = y;
+                        while (currentY < height - 1)
+                        {
+                            if (_gridElements[x, currentY + 1] != null)
+                            {
+                                _gridElements[x, currentY] = _gridElements[x, currentY + 1];
+                                _gridElements[x, currentY + 1] = null;
+                                _gridElements[x, currentY].transform.DOMove(new Vector3(x, currentY, 0), 0.4f);
+                            }
+                            currentY++;
+                        }
+                        _gridElements[x, height - 1] = Instantiate(GetGemPrefab((GemSo.GemType)Random.Range(0, 4)), new Vector3(x, height+5, 0), Quaternion.identity);
+                        _gridElements[x, height - 1].transform.DOMove(new Vector3(x, height - 1, 0), 0.4f);
+                    }
                 }
             }
         }
 
-        private void FillNewEmptySlots(int x , int y )
-        {
-            for (int i = y; i < height; i++)
-            {
-                if (i == height - 1)
-                {
-                    var newGem = Instantiate(GetGemPrefab((GemSo.GemType)Random.Range(0, 4)), new Vector3(x, i +5, 0), Quaternion.identity);
-                    _gridElements[x, i] = newGem;
-                    newGem.transform.DOMoveY(i, 0.2f).SetEase(Ease.OutBounce);
-                }
-            }
-        }
-
-       
         
+
+        private void FillNewEmptySpaces()
+        {
+            for (int x = 0; x < width; x++)
+            {
+                for (int y = 0; y < height; y++)
+                {
+                    if (_gridElements[x, y] == null)
+                    {
+                        GemSo.GemType type;
+                        do
+                        {
+                            type = (GemSo.GemType)Random.Range(0, 4);
+                        } while ((x > 0 && type == GetGemColor(_gridElements[x - 1, y])) ||
+                                 (y > 0 && type == GetGemColor(_gridElements[x, y - 1])));
+                        _gridElements[x, y] = Instantiate(GetGemPrefab(type), new Vector3(x, y + height+5, 0), Quaternion.identity);
+                        _gridElements[x, y].transform.DOMove(new Vector3(x, y, 0), 0.4f);
+                    }
+                }
+            }
+        }
+       
         
         private GameObject GetGemPrefab(GemSo.GemType type) {
             foreach (var gem in gemPrefabs) {
@@ -156,27 +156,7 @@ namespace Managers
         }
         
         
-        // private void ReplaceGem(int x, int y)  
-        // {
-        //     for (int i = y; i < height; i++)
-        //     {
-        //         if (i == height - 1)
-        //         {
-        //             var newGem = Instantiate(GetGemPrefab((GemSo.GemType)Random.Range(0, 4)), new Vector3(x, i +5, 0), Quaternion.identity);
-        //             _gridElements[x, i] = newGem;
-        //             newGem.transform.DOMoveY(i, 0.2f).SetEase(Ease.OutBounce);
-        //         }
-        //         else if (_gridElements[x, i + 1] != null)
-        //         {
-        //             _gridElements[x, i] = _gridElements[x, i + 1];
-        //             _gridElements[x, i].transform.DOMoveY(i, 0.2f).SetEase(Ease.OutBounce);
-        //         }
-        //         
-        //     }
-        // }
-        
-        
-        private void DetectMatchesAndDestroy()
+        private IEnumerator DetectMatchesAndDestroy()
         {
             GridIsUpdating = true;
             List<List<GameObject>> matches = new List<List<GameObject>>(); 
@@ -204,7 +184,11 @@ namespace Managers
             if (matches.Count > 0)
             {
                 DestroyMatches(matches);
-                DetectMatchesAndDestroy();
+                FillEmptySpaces();
+                FillNewEmptySpaces();
+                yield return new WaitForSeconds(1f);
+                StartCoroutine(DetectMatchesAndDestroy());
+
             }
             else
             {
@@ -296,12 +280,14 @@ namespace Managers
                             var position = gem.transform.position;
                             _gridElements[(int)position.x, (int)position.y] = null;
                             Destroy(gem);
+                            OnGemDestroyed();
                         }
                     }
                 }
             }
             matches.Clear();
         }
-        
+
+        private static void OnGemDestroyed() => GemDestroyed?.Invoke();
     }
 }

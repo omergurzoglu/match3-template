@@ -12,4 +12,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 908c9078fabe41288c603d89d40e44eb, type: 3}
   m_Name: WhiteGemSo
   m_EditorClassIdentifier: 
-  gemColor: 3
+  gemType: 3

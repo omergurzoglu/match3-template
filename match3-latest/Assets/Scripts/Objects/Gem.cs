@@ -11,11 +11,11 @@ namespace Objects
     {
         [SerializeField] private GemSo gemSo;
         public GemSo.GemType gemType;
-        
+
         public static event Action<GameObject> GemSelected;
         private void Awake()
         {
-            gemType = gemSo.gemColor;
+            gemType = gemSo.gemType;
         }
         private void OnMouseDown()
         {
@@ -24,11 +24,13 @@ namespace Objects
         
         private static void OnGemSelected(GameObject gem)
         {
-            if (!SwapManager.IsSwapping)
+            if (!SwapManager.IsSwapping&&!GridManager.GridIsUpdating)
             {
                 GemSelected?.Invoke(gem);
             }
            
         }
     }
+
+   
 }

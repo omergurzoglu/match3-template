@@ -7,7 +7,7 @@ namespace ScriptableObjects
     {
         public enum GemType { Red,Green,Blue,White}
 
-        public GemType gemColor;
+        public GemType gemType;
 
     }
 }

@@ -113,4 +113,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gemSo: {fileID: 11400000, guid: ba28aa20ee34a7f42b4600c77402b78e, type: 2}
   gemType: 1
-  thisGemsTransform: {fileID: 3860359373755434094}
+  prefabFx: {fileID: 7986030913329265639, guid: daff06df04095034492f271c31207a5b, type: 3}

@@ -1,4 +1,5 @@
 
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 
@@ -13,6 +14,8 @@ namespace Managers
 
         private void UpdateScore()
         {
+            scoreText.transform.DORewind();
+            scoreText.transform.DOPunchScale (new Vector3 (1, 1, 1), .25f);
             _score++;
             scoreText.text = _score.ToString();
         }

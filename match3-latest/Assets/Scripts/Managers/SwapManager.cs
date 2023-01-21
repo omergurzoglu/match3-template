@@ -10,16 +10,10 @@ namespace Managers
         public static bool IsSwapping = false;
         public static event Action<GameObject,GameObject> SwapCompleteUpdateGrid;
 
-        private void OnEnable()
-        {
-            SelectionManager.ReadyForSwap += SwapElements;
-        }
+        private void OnEnable() => SelectionManager.ReadyForSwap += SwapElements;
 
-        private void OnDisable()
-        {
-            SelectionManager.ReadyForSwap -= SwapElements;
-        }
-        
+        private void OnDisable() => SelectionManager.ReadyForSwap -= SwapElements;
+
         private void SwapElements(GameObject element1, GameObject element2)
         {
             IsSwapping = true;

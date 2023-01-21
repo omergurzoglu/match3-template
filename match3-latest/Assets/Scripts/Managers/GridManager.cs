@@ -15,7 +15,7 @@ namespace Managers
         [SerializeField] private int width, height;
         public List<GameObject> gemPrefabs;
         private Camera _camera;
-        public GameObject[,] _gridElements;
+        private GameObject[,] _gridElements;
         public static bool GridIsUpdating=false;
         public static event Action GemDestroyed;
 
@@ -90,9 +90,9 @@ namespace Managers
         IEnumerator UpdateGrid()
         {
             GridIsUpdating = true;
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.2f);
             StartCoroutine(DetectMatchesAndDestroy());
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.2f);
 
             GridIsUpdating = false;
         }
@@ -116,7 +116,7 @@ namespace Managers
                             currentY++;
                         }
                         _gridElements[x, height - 1] = Instantiate(GetGemPrefab((GemSo.GemType)Random.Range(0, 4)), new Vector3(x, height+5, 0), Quaternion.identity);
-                        _gridElements[x, height - 1].transform.DOMove(new Vector3(x, height - 1, 0), 0.4f);
+                        _gridElements[x, height - 1].transform.DOMove(new Vector3(x, height - 1, 0), 0.15f);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace Managers
                         } while ((x > 0 && type == GetGemColor(_gridElements[x - 1, y])) ||
                                  (y > 0 && type == GetGemColor(_gridElements[x, y - 1])));
                         _gridElements[x, y] = Instantiate(GetGemPrefab(type), new Vector3(x, y + height+5, 0), Quaternion.identity);
-                        _gridElements[x, y].transform.DOMove(new Vector3(x, y, 0), 0.4f);
+                        _gridElements[x, y].transform.DOMove(new Vector3(x, y, 0), 0.15f);
                     }
                 }
             }
@@ -186,12 +186,13 @@ namespace Managers
                 DestroyMatches(matches);
                 FillEmptySpaces();
                 FillNewEmptySpaces();
-                yield return new WaitForSeconds(1f);
+                yield return new WaitForSeconds(0.5f);
                 StartCoroutine(DetectMatchesAndDestroy());
 
             }
             else
             {
+                yield return new WaitForSeconds(0.2f);
                 GridIsUpdating = false;
             }
         }
@@ -278,16 +279,19 @@ namespace Managers
                         if (gem != null)
                         {
                             var position = gem.transform.position;
+                            
                             _gridElements[(int)position.x, (int)position.y] = null;
                             Destroy(gem);
-                            OnGemDestroyed();
+                            
                         }
                     }
+                    OnGemDestroyed();
                 }
             }
             matches.Clear();
         }
 
         private static void OnGemDestroyed() => GemDestroyed?.Invoke();
+
     }
 }

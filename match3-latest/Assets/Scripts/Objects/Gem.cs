@@ -24,11 +24,11 @@ namespace Objects
             }
            
         }
+       
         private void OnDisable()
         {
             ParticleSystem fx = Instantiate(prefabFx, transform.position, Quaternion.identity);
             fx.Play();
-            
         }
     }
 

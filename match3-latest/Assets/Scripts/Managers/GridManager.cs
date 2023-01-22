@@ -116,7 +116,7 @@ namespace Managers
                             currentY++;
                         }
                         _gridElements[x, height - 1] = Instantiate(GetGemPrefab((GemSo.GemType)Random.Range(0, 4)), new Vector3(x, height+5, 0), Quaternion.identity);
-                        _gridElements[x, height - 1].transform.DOMove(new Vector3(x, height - 1, 0), 0.15f);
+                        _gridElements[x, height - 1].transform.DOMove(new Vector3(x, height - 1, 0), 0.4f);
                     }
                 }
             }
@@ -139,7 +139,7 @@ namespace Managers
                         } while ((x > 0 && type == GetGemColor(_gridElements[x - 1, y])) ||
                                  (y > 0 && type == GetGemColor(_gridElements[x, y - 1])));
                         _gridElements[x, y] = Instantiate(GetGemPrefab(type), new Vector3(x, y + height+5, 0), Quaternion.identity);
-                        _gridElements[x, y].transform.DOMove(new Vector3(x, y, 0), 0.15f);
+                        _gridElements[x, y].transform.DOMove(new Vector3(x, y, 0), 0.4f);
                     }
                 }
             }

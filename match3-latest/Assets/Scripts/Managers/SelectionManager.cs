@@ -33,6 +33,7 @@ namespace Managers
                 }
                 else
                 {
+                    
                     Debug.Log("move not allowed");
                 }
             }
